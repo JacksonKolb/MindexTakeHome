@@ -1,6 +1,7 @@
 package com.mindex.challenge.service.impl;
 
 import com.mindex.challenge.data.Employee;
+import com.mindex.challenge.exceptions.EmployeeNotFoundException;
 import com.mindex.challenge.service.EmployeeService;
 import org.junit.Before;
 import org.junit.Test;
@@ -83,7 +84,7 @@ public class EmployeeServiceImplTest {
     }
 
     @Test
-    public void testCountReportsNoReports() {
+    public void testCountReportsNoReports() throws EmployeeNotFoundException {
         String employeeIdWithNoReports = "62c1084e-6e34-4630-93fd-9153afb65309";
 
         Employee employee = employeeService.read(employeeIdWithNoReports);
@@ -93,7 +94,7 @@ public class EmployeeServiceImplTest {
     }
 
     @Test
-    public void testCountReportsOneLevel() {
+    public void testCountReportsOneLevel() throws EmployeeNotFoundException {
         String employeeIdWithOneLevel = "03aa1462-ffa9-4978-901b-7c001562cf6f";
 
         Employee employee = employeeService.read(employeeIdWithOneLevel);
@@ -103,7 +104,7 @@ public class EmployeeServiceImplTest {
     }
 
     @Test
-    public void testCountReportsMultipleLevels() {
+    public void testCountReportsMultipleLevels() throws EmployeeNotFoundException {
         String employeeIdWithMultipleLevels = "16a596ae-edd3-4847-99fe-c4518e82c86f";
 
         Employee employee = employeeService.read(employeeIdWithMultipleLevels);

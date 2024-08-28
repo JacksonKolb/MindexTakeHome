@@ -3,6 +3,7 @@ package com.mindex.challenge.service.impl;
 import com.mindex.challenge.dao.EmployeeRepository;
 import com.mindex.challenge.data.Employee;
 import com.mindex.challenge.data.ReportingStructure;
+import com.mindex.challenge.exceptions.EmployeeNotFoundException;
 import com.mindex.challenge.service.EmployeeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -36,16 +38,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee read(String id) {
+    public Employee read(String id) throws EmployeeNotFoundException {
         LOG.debug("Retrieving employee with id [{}]", id);
 
-        Employee employee = employeeRepository.findByEmployeeId(id);
-
-        if (employee == null) {
-            throw new RuntimeException("Invalid employeeId: " + id);
-        }
-
-        return employee;
+        return Optional.ofNullable(employeeRepository.findByEmployeeId(id))
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
     }
 
     @Override
@@ -56,7 +53,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public ReportingStructure getReportingStructure(String employeeId) {
+    public ReportingStructure getReportingStructure(String employeeId) throws EmployeeNotFoundException {
         LOG.debug("Calculating reporting structure for employee id [{}]", employeeId);
 
         Employee employee = this.read(employeeId);
@@ -65,11 +62,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new ReportingStructure(employee, numberOfReports);
     }
 
-    public int countReports(Employee employee) {
+    public int countReports(Employee employee) throws EmployeeNotFoundException {
         int count = 0;
 
         if (employee.getDirectReports() != null) {
-            LOG.debug("");
+            LOG.debug("Counting reports for employee ID [{}]", employee.getEmployeeId());
             Set<String> visited = new HashSet<>();
             count = countReportsRecursive(employee, visited);
         }
@@ -77,8 +74,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return count;
     }
 
-    private int countReportsRecursive(Employee employee, Set<String> visited) {
-        LOG.debug("Entering countReportsRecursive for employee ID [{}]", employee.getEmployeeId());
+    private int countReportsRecursive(Employee employee, Set<String> visited) throws EmployeeNotFoundException {
         int count = 0;
 
         if (employee.getDirectReports() != null) {

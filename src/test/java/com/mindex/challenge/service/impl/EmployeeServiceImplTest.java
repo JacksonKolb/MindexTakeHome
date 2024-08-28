@@ -22,8 +22,9 @@ import static org.junit.Assert.assertNotNull;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class EmployeeServiceImplTest {
 
-    private String employeeUrl;
     private String employeeIdUrl;
+    private Employee testEmployee;
+    private Employee createdEmployee;
 
     @Autowired
     private EmployeeService employeeService;
@@ -36,33 +37,36 @@ public class EmployeeServiceImplTest {
 
     @Before
     public void setup() {
-        employeeUrl = "http://localhost:" + port + "/employee";
+        String employeeUrl = "http://localhost:" + port + "/employee";
         employeeIdUrl = "http://localhost:" + port + "/employee/{id}";
-    }
 
-    @Test
-    public void testCreateReadUpdate() {
-        Employee testEmployee = new Employee();
+        testEmployee = new Employee();
         testEmployee.setFirstName("John");
         testEmployee.setLastName("Doe");
         testEmployee.setDepartment("Engineering");
         testEmployee.setPosition("Developer");
 
-        // Create checks
-        Employee createdEmployee = restTemplate.postForEntity(employeeUrl, testEmployee, Employee.class).getBody();
+        createdEmployee = restTemplate.postForEntity(employeeUrl, testEmployee, Employee.class).getBody();
+    }
 
+    @Test
+    public void testCreateEmployee() {
         assertNotNull(createdEmployee.getEmployeeId());
         assertEmployeeEquivalence(testEmployee, createdEmployee);
+    }
 
-
-        // Read checks
+    @Test
+    public void testReadEmployee() {
         Employee readEmployee = restTemplate.getForEntity(employeeIdUrl, Employee.class, createdEmployee.getEmployeeId()).getBody();
+
+        assertNotNull(readEmployee);
         assertEquals(createdEmployee.getEmployeeId(), readEmployee.getEmployeeId());
         assertEmployeeEquivalence(createdEmployee, readEmployee);
+    }
 
-
-        // Update checks
-        readEmployee.setPosition("Development Manager");
+    @Test
+    public void testUpdateEmployee() {
+        createdEmployee.setPosition("Development Manager");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -70,11 +74,42 @@ public class EmployeeServiceImplTest {
         Employee updatedEmployee =
                 restTemplate.exchange(employeeIdUrl,
                         HttpMethod.PUT,
-                        new HttpEntity<Employee>(readEmployee, headers),
+                        new HttpEntity<>(createdEmployee, headers),
                         Employee.class,
-                        readEmployee.getEmployeeId()).getBody();
+                        createdEmployee.getEmployeeId()).getBody();
 
-        assertEmployeeEquivalence(readEmployee, updatedEmployee);
+        assertNotNull(updatedEmployee);
+        assertEmployeeEquivalence(createdEmployee, updatedEmployee);
+    }
+
+    @Test
+    public void testCountReportsNoReports() {
+        String employeeIdWithNoReports = "62c1084e-6e34-4630-93fd-9153afb65309";
+
+        Employee employee = employeeService.read(employeeIdWithNoReports);
+        int reportCount = employeeService.countReports(employee);
+
+        assertEquals(0, reportCount);
+    }
+
+    @Test
+    public void testCountReportsOneLevel() {
+        String employeeIdWithOneLevel = "03aa1462-ffa9-4978-901b-7c001562cf6f";
+
+        Employee employee = employeeService.read(employeeIdWithOneLevel);
+        int reportCount = employeeService.countReports(employee);
+
+        assertEquals(2, reportCount);
+    }
+
+    @Test
+    public void testCountReportsMultipleLevels() {
+        String employeeIdWithMultipleLevels = "16a596ae-edd3-4847-99fe-c4518e82c86f";
+
+        Employee employee = employeeService.read(employeeIdWithMultipleLevels);
+        int reportCount = employeeService.countReports(employee);
+
+        assertEquals(4, reportCount);
     }
 
     private static void assertEmployeeEquivalence(Employee expected, Employee actual) {

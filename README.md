@@ -30,20 +30,20 @@ I made a really basic postman collection for simple testing
 
 You can import this into postman if you want, and click around.
 
-Future Improvements
+# Future Improvements
 
-    Error Handling:
-        Implement more robust error handling for invalid inputs and service failures.
-        Enhance the global exception handler to manage and format errors consistently.
+ - ### Error Handling:
+    Implement more robust error handling for invalid inputs and service failures.
+    Enhance the global exception handler to manage and format errors consistently.
 
-    Integration Testing:
-        Add integration tests to verify the interaction between different components of the system.
-        The Unit tests are decent, but an integration test or two is definitely valuable in a real context.
+ - ### Integration Testing:
+    Add integration tests to verify the interaction between different components of the system.
+    The Unit tests are decent, but an integration test or two is definitely valuable in a real context.
 
-    Data Validation:
-        Implement additional validation for request bodies to ensure data integrity. I think lombok/spring has
-        some more annotations for this.
+ - ### Data Validation:
+    Implement additional validation for request bodies to ensure data integrity. I think lombok/spring has
+    some more annotations for this.
 
-    Documentation:
-        Enhance API documentation to include detailed descriptions of endpoints, request/response examples, and error codes. 
-        I think just getting some swagger annotations/definitions would make this way prettier/more digestable.
+ - ### Documentation:
+    Enhance API documentation to include detailed descriptions of endpoints, request/response examples, and error codes. 
+    I think just getting some swagger annotations/definitions would make this way prettier/more digestable.
